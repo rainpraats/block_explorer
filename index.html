@@ -7,5 +7,30 @@
     <script type="module" src="app.js" defer></script>
     <title>Block Explorer</title>
   </head>
-  <body></body>
+  <body>
+    <main>
+      <h1>Blockchain Explorer</h1>
+
+      <h2>Search Address</h2>
+      <input
+        type="text"
+        id="addressInput"
+        placeholder="Enter Ethereum address"
+      />
+      <button>Search</button>
+      <div id="result"></div>
+
+      <h2>Create Transaction</h2>
+      <input type="text" id="fromAddress" placeholder="From Address" />
+      <input type="text" id="toAddress" placeholder="To Address" />
+      <input type="number" id="amount" placeholder="Amount in Ether" />
+      <button>Create Transaction</button>
+      <div id="transactionResult"></div>
+
+      <h2>Blockchain Info</h2>
+      <div id="blockchainInfo">
+        <p>Total Blocks: <span id="totalBlocks">Loading...</span></p>
+      </div>
+    </main>
+  </body>
 </html>
