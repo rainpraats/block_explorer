@@ -1,0 +1,15 @@
+{
+  "name": "block_explorer",
+  "version": "1.0.0",
+  "description": "Blockchain explorer for an assignment in school.",
+  "main": "app.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "Rain prääts",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}
