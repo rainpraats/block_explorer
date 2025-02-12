@@ -4,12 +4,13 @@
   "description": "Blockchain explorer for an assignment in school.",
   "main": "app.js",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest --globals"
   },
   "keywords": [],
   "author": "Rain prääts",
   "license": "ISC",
   "devDependencies": {
+    "happy-dom": "^17.1.0",
     "vitest": "^3.0.5"
   }
 }
