@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Window } from 'happy-dom';
 
-import { beforeEach, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import {} from './';
 
 const docPath = path.join(process.cwd(), 'index.html');
@@ -18,10 +18,45 @@ beforeEach(() => {
   document.write(docContent);
 });
 
-describe('Search Address div', () => {
-  it('Div should display error message in case of errors.', () => {
+describe('Address input', () => {
+  it('Putting in an address thats too long results in error.', () => {
     // Arrange ...
     // Act ...
+    // Assert ...
+  });
+
+  it('Using symbols other than a-z, A-Z and 0-9 results in error.', () => {
+    // Arrange ...
+    // Act ...
+    // Assert ...
+  });
+
+  it('Address should start with 0x', () => {
+    // Arrange ...
+    // Act ...
+    // Assert ...
+  });
+});
+
+describe('Search Address div', () => {
+  it('Address result div should initially be invisible', () => {
+    const div = document.querySelector('#addressInfo');
+
+    expect(div.getElementsByClassName.display).toBe('none');
+  });
+
+  it('Not inputing a correct address results in error.', () => {
+    // Arrange ...
+    // Act ...
+    // Assert ...
+  });
+
+  it('Problem getting the address info results in error', () => {
+    // Arrange ...
+    const div = document.querySelector('#addressInfo');
+
+    // Act ...
+
     // Assert ...
   });
 
@@ -39,10 +74,10 @@ describe('Search Address div', () => {
 });
 
 describe('Transaction div', () => {
-  it('Should initially be invisible', () => {
-    // Arrange ...
-    // Act ...
-    // Assert ...
+  it('Transaction div should initially be invisible', () => {
+    const div = document.querySelector('#transactionResult');
+
+    expect(div.getElementsByClassName.display).toBe('none');
   });
 
   it('Should display the same values as the inputs after sending a transaction.', () => {
