@@ -18,14 +18,34 @@
         placeholder="Enter Ethereum address"
         required
       />
-      <button>Search</button>
+      <button id="getBalance">Search</button>
       <div id="addressInfo"></div>
 
       <h2>Create Transaction</h2>
-      <input type="text" id="fromAddress" placeholder="From Address" />
-      <input type="text" id="toAddress" placeholder="To Address" />
-      <input type="number" id="amount" placeholder="Amount in Ether" />
-      <button>Create Transaction</button>
+      <form id="transaction">
+        <input
+          type="text"
+          id="fromAddress"
+          name="fromAddress"
+          placeholder="From Address"
+          required
+        />
+        <input
+          type="text"
+          id="toAddress"
+          name="toAddress"
+          placeholder="To Address"
+          required
+        />
+        <input
+          type="number"
+          id="amount"
+          name="amount"
+          placeholder="Amount in Ether"
+          required
+        />
+        <button type="submit">Create Transaction</button>
+      </form>
       <div id="transactionResult"></div>
 
       <h2>Blockchain Info</h2>
