@@ -39,7 +39,7 @@ button:hover {
 }
 
 #addressInfo,
-#transactionResult {
+#transactionInfo {
   display: none;
   margin-top: 20px;
   padding: 10px;
