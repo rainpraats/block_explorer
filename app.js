@@ -1,23 +1,20 @@
 import {
-  ethers,
   formatEther,
   parseEther,
 } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 
-import {
-  displayAddressError,
-  displayBalance,
-  displayTransactionResult,
-  displayTransactionError,
-} from './utilities/dom.js';
+import DOMManipulator from './utilities/dom.js';
+import { createProvider } from './utilities/provider.js';
+
 // balance should update after every transaction.
 // inputing address should automaticaly input address into sender.
 // transaction timestamp should be used as transaction time.
 // wrap every await in try catch
+// add user experience for when server is down.
 
 const initApp = () => {
   const button = document.querySelector('#getBalance');
-  button.addEventListener('click', connectWallet);
+  button.addEventListener('click', callAddress);
 
   const transactionForm = document.querySelector('#transaction');
   transactionForm.addEventListener('submit', sendTransaction);
@@ -25,29 +22,38 @@ const initApp = () => {
   displayCurrentBlock();
 };
 
-const connectWallet = async () => {
+const callAddress = async () => {
   const addressInput = document.querySelector('#addressInput');
   const address = validateAddressFormat(addressInput.value);
 
   if (!address) {
-    displayAddressError('Input did not match any address.');
+    return DOMManipulator.displayAddressError(
+      'Input did not match any address.'
+    );
   }
 
-  const balance = await getAccountBalance(address);
-  displayBalance(address, balance);
+  try {
+    const balance = await getAccountBalance(address);
+    DOMManipulator.displayBalance(address, balance);
+  } catch (error) {
+    DOMManipulator.displayAddressError('Failed to fetch balance.');
+  }
 };
 
 const getAccountBalance = async (address) => {
-  const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:8545');
+  const provider = createProvider();
   const balance = await provider.getBalance(address);
   return formatEther(balance);
 };
 
 const displayCurrentBlock = async () => {
-  const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:8545');
-  const totalBlocks = await provider.getBlockNumber();
-  document.querySelector('#totalBlocks').textContent = totalBlocks;
-  // should refresh every transaction.
+  try {
+    const provider = createProvider();
+    const totalBlocks = await provider.getBlockNumber();
+    document.querySelector('#totalBlocks').textContent = totalBlocks;
+  } catch (error) {
+    console.error('Failed to fetch block number.');
+  }
 };
 
 export const validateAddressFormat = (address) => {
@@ -56,10 +62,9 @@ export const validateAddressFormat = (address) => {
     address.slice(0, 2) !== '0x' ||
     !/^[a-z0-9]+$/i.test(address)
   ) {
-    return;
-  } else {
-    return address;
+    return null;
   }
+  return address;
 };
 
 const sendTransaction = async (e) => {
@@ -68,34 +73,36 @@ const sendTransaction = async (e) => {
   const data = new FormData(e.target);
   const formData = Object.fromEntries(data);
 
-  // check that the input and output adresses go through the check
   if (!validateAddressFormat(formData.fromAddress)) {
-    displayTransactionError(
+    return DOMManipulator.displayTransactionError(
       'Check the sender address. Input did not match any address.'
     );
-
-    return;
   }
 
   if (!validateAddressFormat(formData.toAddress)) {
-    displayTransactionError(
-      'Check the reciver address. Input did not match any address.'
+    return DOMManipulator.displayTransactionError(
+      'Check the receiver address. Input did not match any address.'
     );
-
-    return;
   }
 
-  const balance = await getAccountBalance(formData.fromAddress);
-  if (balance < formData.amount) {
-    displayTransactionError(
-      'You cant send an amount bigger than the account balance.'
-    );
+  try {
+    const balance = await getAccountBalance(formData.fromAddress);
+    if (balance < formData.amount) {
+      return DOMManipulator.displayTransactionError(
+        "You can't send an amount bigger than the account balance."
+      );
+    }
 
-    return;
+    await executeTransaction(formData);
+    callAddress();
+    displayCurrentBlock();
+  } catch (error) {
+    DOMManipulator.displayTransactionError('Transaction failed.');
   }
+};
 
-  // split the above into a seperate function.
-  const provider = new ethers.JsonRpcProvider('HTTP://127.0.0.1:8545');
+const executeTransaction = async (formData) => {
+  const provider = createProvider();
   const signer = await provider.getSigner(formData.fromAddress);
 
   const trx = await signer.sendTransaction({
@@ -103,19 +110,13 @@ const sendTransaction = async (e) => {
     value: parseEther(formData.amount),
   });
 
-  // split the above into a seperate function.
   const time = new Date();
-
-  displayTransactionResult(
+  DOMManipulator.displayTransactionResult(
     formData.fromAddress,
     formData.toAddress,
     formData.amount,
     time.toLocaleString()
   );
-
-  connectWallet(); // wierd that its called this.
-
-  displayCurrentBlock();
 };
 
 document.addEventListener('DOMContentLoaded', initApp);
