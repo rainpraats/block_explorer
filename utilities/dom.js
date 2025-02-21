@@ -4,12 +4,12 @@ class DOMManipulator {
     this.transactionInfoDiv = document.querySelector('#transactionInfo');
   }
 
-  displayTransactionResult(from, to, amount, time) {
+  displayTransactionReceipt(from, to, amount, time) {
     this.transactionInfoDiv.innerHTML = `
       <p>Transaction created at: ${time}</p>
       <p>From: ${from}</p>
       <p>To: ${to}</p>
-      <p>Amount: ${amount}</p>
+      <p>Amount: ${amount} ETH</p>
     `;
     this.transactionInfoDiv.style.display = 'block';
   }

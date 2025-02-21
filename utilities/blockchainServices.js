@@ -1,0 +1,127 @@
+import {
+  formatEther,
+  parseEther,
+} from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
+
+import { createProvider } from './provider.js';
+import {
+  validateAddressFormat,
+  validateTransactionForm,
+  getAccountBalance,
+} from './validation.js';
+import DOMManipulator from './dom.js';
+
+export const callAddress = async () => {
+  const addressInput = document.querySelector('#addressInput');
+  const address = validateAddressFormat(addressInput.value);
+
+  if (!address) {
+    return DOMManipulator.displayAddressError(
+      'Input did not match any address.'
+    );
+  }
+
+  try {
+    const balance = await getAccountBalance(address);
+    DOMManipulator.displayBalance(address, balance);
+  } catch (error) {
+    DOMManipulator.displayAddressError('Failed to fetch address data.');
+    throw new Error(error);
+  }
+};
+
+export const displayCurrentBlock = async () => {
+  try {
+    const provider = createProvider();
+    const totalBlocks = await provider.getBlockNumber();
+    document.querySelector('#totalBlocks').textContent = totalBlocks;
+  } catch (error) {
+    throw new Error(`Failed to fetch block number. ${error}`);
+  }
+};
+
+export const handleTransactionSubmit = async (e) => {
+  e.preventDefault();
+
+  const data = new FormData(e.target);
+  const formData = Object.fromEntries(data);
+
+  try {
+    const validTransactionForm = await validateTransactionForm(formData);
+
+    if (!validTransactionForm) return;
+
+    const receipt = await executeTransaction(formData);
+    handleTransactionSuccess(receipt);
+  } catch (error) {
+    DOMManipulator.displayTransactionError(
+      'An error occured when creating the transaction.'
+    );
+    throw new Error(`Error on transaction submit - ${error}`);
+  }
+};
+
+const executeTransaction = async (formData) => {
+  try {
+    const provider = createProvider();
+    const signer = await provider.getSigner(formData.fromAddress);
+
+    const trx = await signer.sendTransaction({
+      to: formData.toAddress,
+      value: parseEther(formData.amount),
+    });
+
+    const receipt = await trx.wait();
+
+    return receipt;
+  } catch (error) {
+    DOMManipulator.displayTransactionError('Transaction failed.');
+    throw new Error(error);
+  }
+};
+
+const handleTransactionSuccess = async (receipt) => {
+  try {
+    await callAddress();
+    await displayCurrentBlock();
+    await handleReceipt(receipt);
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getBlockByHash = async (blockHash) => {
+  const provider = createProvider();
+  try {
+    return await provider.getBlock(blockHash);
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getTransactionByHash = async (transactionHash) => {
+  const provider = createProvider();
+  try {
+    return await provider.getTransaction(transactionHash);
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const handleReceipt = async (receipt) => {
+  try {
+    const transaction = await getTransactionByHash(receipt.hash);
+    const block = await getBlockByHash(receipt.blockHash);
+
+    const transactionTime = new Date(block.timestamp * 1000).toLocaleString();
+
+    DOMManipulator.displayTransactionReceipt(
+      receipt.from,
+      receipt.to,
+      formatEther(transaction.value),
+      transactionTime
+    );
+  } catch (error) {
+    throw new Error(error);
+  }
+};
