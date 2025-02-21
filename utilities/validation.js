@@ -1,6 +1,6 @@
 import { formatEther } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 
-import { createProvider } from './provider.js';
+import { getAccountBalance } from './rpcGetRequests.js';
 import DOMManipulator from './dom.js';
 
 export const validateAddressFormat = (address) => {
@@ -45,14 +45,4 @@ export const validateTransactionForm = async (formData) => {
   }
 
   return true;
-};
-
-export const getAccountBalance = async (address) => {
-  try {
-    const provider = createProvider();
-    const balance = await provider.getBalance(address);
-    return formatEther(balance);
-  } catch (error) {
-    throw new Error(error);
-  }
 };

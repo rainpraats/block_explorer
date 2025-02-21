@@ -3,12 +3,17 @@ import {
   parseEther,
 } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 
-import { createProvider } from './provider.js';
 import {
   validateAddressFormat,
   validateTransactionForm,
-  getAccountBalance,
 } from './validation.js';
+import {
+  getAccountBalance,
+  createSigner,
+  getTransactionByHash,
+  getBlockByHash,
+  getCurrentBlock,
+} from './rpcGetRequests.js';
 import DOMManipulator from './dom.js';
 
 export const callAddress = async () => {
@@ -32,8 +37,7 @@ export const callAddress = async () => {
 
 export const displayCurrentBlock = async () => {
   try {
-    const provider = createProvider();
-    const totalBlocks = await provider.getBlockNumber();
+    const totalBlocks = await getCurrentBlock();
     document.querySelector('#totalBlocks').textContent = totalBlocks;
   } catch (error) {
     throw new Error(`Failed to fetch block number. ${error}`);
@@ -63,8 +67,7 @@ export const handleTransactionSubmit = async (e) => {
 
 const executeTransaction = async (formData) => {
   try {
-    const provider = createProvider();
-    const signer = await provider.getSigner(formData.fromAddress);
+    const signer = await createSigner(formData.fromAddress);
 
     const trx = await signer.sendTransaction({
       to: formData.toAddress,
@@ -85,24 +88,6 @@ const handleTransactionSuccess = async (receipt) => {
     await callAddress();
     await displayCurrentBlock();
     await handleReceipt(receipt);
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const getBlockByHash = async (blockHash) => {
-  const provider = createProvider();
-  try {
-    return await provider.getBlock(blockHash);
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-const getTransactionByHash = async (transactionHash) => {
-  const provider = createProvider();
-  try {
-    return await provider.getTransaction(transactionHash);
   } catch (error) {
     throw new Error(error);
   }
