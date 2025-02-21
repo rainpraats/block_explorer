@@ -1,4 +1,4 @@
-class DOMManipulator {
+export class DOMManipulator {
   constructor() {
     this.addressInfoDiv = document.querySelector('#addressInfo');
     this.transactionInfoDiv = document.querySelector('#transactionInfo');
@@ -32,5 +32,3 @@ class DOMManipulator {
     this.addressInfoDiv.style.display = 'block';
   }
 }
-
-export default new DOMManipulator();

@@ -1,7 +1,9 @@
 import { formatEther } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 
 import { getAccountBalance } from './rpcGetRequests.js';
-import DOMManipulator from './dom.js';
+import { DOMManipulator } from './dom.js';
+
+const domManipulator = new DOMManipulator();
 
 export const validateAddressFormat = (address) => {
   if (
@@ -16,14 +18,14 @@ export const validateAddressFormat = (address) => {
 
 export const validateTransactionForm = async (formData) => {
   if (!validateAddressFormat(formData.fromAddress)) {
-    DOMManipulator.displayTransactionError(
+    domManipulator.displayTransactionError(
       'Check the sender address. Input did not match any address.'
     );
     return null;
   }
 
   if (!validateAddressFormat(formData.toAddress)) {
-    DOMManipulator.displayTransactionError(
+    domManipulator.displayTransactionError(
       'Check the receiver address. Input did not match any address.'
     );
     return null;
@@ -35,7 +37,7 @@ export const validateTransactionForm = async (formData) => {
     const amountInNumber = parseFloat(formData.amount);
 
     if (balanceInNumber < amountInNumber) {
-      DOMManipulator.displayTransactionError(
+      domManipulator.displayTransactionError(
         "You can't send an amount bigger than the account balance."
       );
       return null;

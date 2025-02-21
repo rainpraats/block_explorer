@@ -14,23 +14,25 @@ import {
   getBlockByHash,
   getCurrentBlock,
 } from './rpcGetRequests.js';
-import DOMManipulator from './dom.js';
+import { DOMManipulator } from './dom.js';
+
+const domManipulator = new DOMManipulator();
 
 export const callAddress = async () => {
   const addressInput = document.querySelector('#addressInput');
   const address = validateAddressFormat(addressInput.value);
 
   if (!address) {
-    return DOMManipulator.displayAddressError(
+    return domManipulator.displayAddressError(
       'Input did not match any address.'
     );
   }
 
   try {
     const balance = await getAccountBalance(address);
-    DOMManipulator.displayBalance(address, balance);
+    domManipulator.displayBalance(address, balance);
   } catch (error) {
-    DOMManipulator.displayAddressError('Failed to fetch address data.');
+    domManipulator.displayAddressError('Failed to fetch address data.');
     throw new Error(error);
   }
 };
@@ -58,7 +60,7 @@ export const handleTransactionSubmit = async (e) => {
     const receipt = await executeTransaction(formData);
     handleTransactionSuccess(receipt);
   } catch (error) {
-    DOMManipulator.displayTransactionError(
+    domManipulator.displayTransactionError(
       'An error occured when creating the transaction.'
     );
     throw new Error(`Error on transaction submit - ${error}`);
@@ -78,7 +80,7 @@ const executeTransaction = async (formData) => {
 
     return receipt;
   } catch (error) {
-    DOMManipulator.displayTransactionError('Transaction failed.');
+    domManipulator.displayTransactionError('Transaction failed.');
     throw new Error(error);
   }
 };
@@ -100,7 +102,7 @@ const handleReceipt = async (receipt) => {
 
     const transactionTime = new Date(block.timestamp * 1000).toLocaleString();
 
-    DOMManipulator.displayTransactionReceipt(
+    domManipulator.displayTransactionReceipt(
       receipt.from,
       receipt.to,
       formatEther(transaction.value),
