@@ -3,32 +3,40 @@ import path from 'path';
 import { Window } from 'happy-dom';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DOMManipulator } from './utilities/dom.js';
+import { DOMManipulator } from './utilities/dom';
 
 const docPath = path.join(process.cwd(), 'index.html');
 const docContent = fs.readFileSync(docPath).toString();
+
+const cssPath = path.join(process.cwd(), 'style.css');
+const cssContent = fs.readFileSync(cssPath).toString();
 
 const window = new Window();
 const document = window.document;
 
 vi.stubGlobal('document', document);
 
-const domManipulator = new DOMManipulator();
+let domManipulator;
 
 beforeEach(() => {
   document.body.innerHTML = '';
   document.write(docContent);
+
+  const styleElement = document.createElement('style');
+  styleElement.textContent = cssContent;
+  document.head.appendChild(styleElement);
+
+  domManipulator = new DOMManipulator();
 });
 
 describe('Search Address div', () => {
   it('Address info div should initially be invisible', () => {
     const div = document.querySelector('#addressInfo');
-    expect(div.style.display).toBe('none');
+    const computedStyle = window.getComputedStyle(div);
+    expect(computedStyle.display).toBe('none');
   });
 
   it('Not inputting a correct address results in error.', () => {
-    const input = document.querySelector('#addressInput');
-    input.value = '0x0000';
     domManipulator.displayAddressError('Input did not match any address.');
     const div = document.querySelector('#addressInfo');
     expect(div.innerHTML).toContain('Input did not match any address.');
@@ -62,7 +70,8 @@ describe('Search Address div', () => {
 describe('Transaction div', () => {
   it('Transaction div should initially be invisible', () => {
     const div = document.querySelector('#transactionInfo');
-    expect(div.style.display).toBe('none');
+    const computedStyle = window.getComputedStyle(div);
+    expect(computedStyle.display).toBe('none');
   });
 
   it('Should display the same values as the inputs after sending a transaction.', () => {
@@ -70,7 +79,7 @@ describe('Transaction div', () => {
     const to = '0xabcdef1234567890abcdef1234567890abcdef12';
     const amount = '1.0';
     const time = new Date().toLocaleString();
-    domManipulator.displayTransactionResult(from, to, amount, time);
+    domManipulator.displayTransactionReceipt(from, to, amount, time);
     const div = document.querySelector('#transactionInfo');
     expect(div.innerHTML).toContain(from);
     expect(div.innerHTML).toContain(to);
